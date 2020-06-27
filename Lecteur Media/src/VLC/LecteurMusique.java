@@ -1,7 +1,5 @@
 package VLC;
 
-//Hola
-
 //https://www.geeksforgeeks.org/play-audio-file-using-java/
 
 //Programme java pour lire un audio
@@ -182,6 +180,47 @@ public class LecteurMusique {
 			positionActuelleDuClip = 0L;
 			clip.setMicrosecondPosition(0);
 			this.play();//Relecture.
+		}
+		
+		//Méthode stop() pour arrêter la lecture du clip
+		public void stop()
+			throws IOException, LineUnavailableException, UnsupportedAudioFileException
+		{
+			positionActuelleDuClip = clip.getMicrosecondPosition();
+			clip.stop();
+			clip.close();
+			statutActuelleDuClip = "Lecture stoppée";
+		}
+		
+		//Méthode pour pour sauter vers une partie spécifique de lecture
+		public void jump(long c)//fonctionne grace à la donner qui sera saisie au clavier
+		//pour nous indiquer la partie sur laquelle on aimerait faire le saut
+			throws IOException, LineUnavailableException, UnsupportedAudioFileException
+		{
+			//Si le temps voulu est supérieur à zéro et ce meme
+			//temps est dans la marge maximale, alors on va vers ce temps.
+			if(c > 0 && c < clip.getMicrosecondLength())
+			{
+				clip.stop();
+				clip.close();
+				reinitialiserFluxAudio();
+				positionActuelleDuClip = c;
+				clip.setMicrosecondPosition(c);
+				this.play();
+			}
+		}
+		
+		//Méthode pour réinitialiser les flux Audio après une interuption
+		//suite à une coupure de ligne de diffusion par close()
+		public void reinitialiserFluxAudio()
+			throws IOException, LineUnavailableException,
+			UnsupportedAudioFileException
+		{
+			//Tout simplement pour dire que ça va repartir chercher le fichier
+			//et son flux pour une nouvelle diffusion jusqu'à la fin
+			fluxDEntreeAudio = AudioSystem.getAudioInputStream(new File(cheminDuFichier));
+			clip.open(fluxDEntreeAudio);
+			clip.loop(clip.LOOP_CONTINUOUSLY);
 		}
 	
 }
